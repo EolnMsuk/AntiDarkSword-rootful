@@ -6,6 +6,11 @@
 
 AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit and iMessage-based exploits. It significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks.
 
+## 🔍 How the Protection Works (Allow-By-Default)
+To protect yourself, you must go into the tweak settings and explicitly **RESTRICT** the apps you want to lock down. You can do this manually by selecting specific apps, or by enabling the built-in **Preset Rules** tiers. 
+
+*Note: Restricting an app means it will no longer be able to run interactive web elements. Web pages will still load text and images (HTML/CSS), but apps built with native UI like YouTube and Discord will continue to function normally.*
+
 ## ✨ Features
 
 * **WebKit Hardening:** Forcibly disables JavaScript execution, inline media playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access within targeted web views.
@@ -18,7 +23,22 @@ AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken de
 
 ## ⚠️ Warning
 
-Even level one disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
+Even level 1 disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
+
+## 🛑 Mitigated Exploits
+By disabling WebKit and JavaScriptCore attack vectors, this tweak prevents several known exploit chains:
+* **DarkSword:** Full-chain, JavaScript-based exploit kit (iOS 18.4 – 18.7).
+* **Coruna:** JavaScript-reliant iOS exploit kit (iOS 13.0 – 17.2.1).
+* **Predator:** Safari JavaScript 1-click spyware (Versions before iOS 16.7).
+* **BLASTPASS:** iMessage zero-click using PassKit attachments (Versions before iOS 16.6.1).
+* **PWNYOURHOME:** Zero-click targeting HomeKit or iCloud Photos (iOS 15.0 – 16.3.1).
+* **Chaos:** Safari WebKit DOM vulnerability exploit (Versions older than 16.3).
+* **CVE-2025-43529:** Recent WebKit zero-day using memory corruption (Versions prior to iOS 26.2).
+* **CVE-2024-44308:** WebKit remote code execution via web content (Versions before 18.1.1).
+* **CVE-2022-42856:** JavaScriptCore type confusion in JIT compiler (iOS 16.0 to 16.1.1 and earlier).
+* **Operation Triangulation:** iMessage WebKit zero-click chain (iOS 15.7 and older).
+* **Hermit:** JavaScriptCore type-confusion spyware chain (iOS 15.0 – 15.4.1).
+
 
 ## 📦 Compatibility
 
@@ -51,3 +71,6 @@ Ensure you have the required dependencies installed via your package manager (li
 5. Use the **Add Custom Bundle ID / Process** button to paste comma-separated lists of hidden background daemons you wish to restrict. Swipe left on any generated custom ID to delete it.
 6. Tap the **Save** button in the top right corner (available in both the main menu and app list) to apply your new security rules and respring.
 7. To quickly clear your settings, use the **Reset to Defaults** button at the bottom of the main menu.
+
+## 👨‍💻 Developer
+Created by [eolnmsuk](https://venmo.com/user/eolnmsuk)
