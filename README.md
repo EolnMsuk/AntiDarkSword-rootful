@@ -1,3 +1,5 @@
+<img width="2753" height="2463" alt="IMG_6776" src="https://github.com/user-attachments/assets/0f6f0288-2652-4b02-b187-62c45f208d75" />
+
 # AntiDarkSword ⚔️
 
 **System-wide JS kill-switch with exceptions.**
@@ -14,12 +16,38 @@ AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken de
   * **Level 3:** Locks down critical system daemons to prevent daemon-level zero-clicks.
 * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific apps or background tasks.
 
+## ⚠️ Warning
+
+Even level one disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
+
 ## 📦 Compatibility
 
 * **Architecture:** Rootful (iphoneos-arm64)
 * **iOS Versions:** iOS 14.5 - 18.0
 * **Dependencies:** mobilesubstrate, preferenceloader, com.opa334.altlist
 
-## ⚠️ Warning
+Here are the step-by-step instructions to install your compiled `.deb` file on your device. Since this is a rootful tweak, you can install it easily using Filza or via SSH/Terminal.
 
-Even level one disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
+### 🛠️ Prerequisites
+Ensure you have the required dependencies installed via your package manager (like Sileo or Zebra), or the installation will fail:
+* `mobilesubstrate` 
+* `preferenceloader` 
+* `com.opa334.altlist`
+
+### Direct Installation (rootful)
+1. Navigate to the **Actions** tab of this repository.
+2. Click the latest successful `Compile Tweak` workflow run.
+3. Download the `AntiDarkSword-Rootlful.deb` artifact at the bottom of the page.
+4. Transfer the `.deb` to your iPhone and install via Filza, Sileo, or Zebra.
+5. Respring your device.
+
+## ⚙️ Configuration
+1. Open your iPhone's native **Settings** app.
+2. Scroll down to the Tweak section and tap **AntiDarkSword**.
+3. **Turn ON** the master Enable Protection switch.
+4. Choose your protection method:
+   * **Preset Rules:** Turn on Enable Preset Rules and select Level 1, 2, or 3 for immediate, system-wide coverage.
+   * **Manual Selection:** If Preset Rules are off, use the **Select Apps...** menu to individually turn ON restrictions for specific apps (all are OFF by default).
+5. Use the **Add Custom Bundle ID / Process** button to paste comma-separated lists of hidden background daemons you wish to restrict. Swipe left on any generated custom ID to delete it.
+6. Tap the **Save** button in the top right corner (available in both the main menu and app list) to apply your new security rules and respring.
+7. To quickly clear your settings, use the **Reset to Defaults** button at the bottom of the main menu.
