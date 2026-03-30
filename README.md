@@ -6,27 +6,34 @@
 
 AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit and iMessage-based exploits. It significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks.
 
+---
+
 ## 🔍 How the Protection Works (Allow-By-Default)
+
 To protect yourself, you must go into the tweak settings and explicitly **RESTRICT** the apps you want to lock down. You can do this manually by selecting specific apps, or by enabling the built-in **Preset Rules** tiers. 
 
-*Note: Restricting an app means it will no longer be able to run interactive web elements. Web pages will still load text and images (HTML/CSS), but apps built with native UI like YouTube and Discord will continue to function normally.*
+> **Note:** Restricting an app means it will no longer be able to run interactive web elements. Web pages will still load text and images (HTML/CSS), but apps built with native UI like YouTube and Discord will continue to function normally.
+
+---
 
 ## ✨ Features
 
 * **WebKit Hardening:** Forcibly disables JavaScript execution, inline media playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access within targeted web views.
 * **iMessage Mitigation:** Defends against BlastPass/FORCEDENTRY-style attacks by disabling automatic attachment downloading and preview generation.
-* **Tiered Protection:**
-  * **Level 1:** Protects native Apple apps and services.
-  * **Level 2:** Expands protection to major third-party browsers and social media apps.
-  * **Level 3:** Locks down critical system daemons to prevent daemon-level zero-clicks.
+* **Tiered Protection (Level 1):** Protects native Apple apps and services.
+* **Tiered Protection (Level 2):** Expands protection to major third-party browsers and social media apps.
+* **Tiered Protection (Level 3):** Locks down critical system daemons to prevent daemon-level zero-clicks.
 * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific apps or background tasks.
 
-## ⚠️ Warning
+> ⚠️ **Warning:**
+> Even **Level 1** disables email / text previews of files (you must hold the file down and save to Files to view it). Enabling **Level 3** restricts critical background daemons (like `imagent` and `mediaserverd`) and may break media playback. Only enable this level if you understand how to disable it if any issues arise.
 
-Even level 1 disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
+---
 
 ## 🛑 Mitigated Exploits
+
 By disabling WebKit and JavaScriptCore attack vectors, this tweak prevents several known exploit chains:
+
 * **DarkSword:** Full-chain, JavaScript-based exploit kit (iOS 18.4 – 18.7).
 * **Coruna:** JavaScript-reliant iOS exploit kit (iOS 13.0 – 17.2.1).
 * **Predator:** Safari JavaScript 1-click spyware (Versions before iOS 16.7).
@@ -39,38 +46,48 @@ By disabling WebKit and JavaScriptCore attack vectors, this tweak prevents sever
 * **Operation Triangulation:** iMessage WebKit zero-click chain (iOS 15.7 and older).
 * **Hermit:** JavaScriptCore type-confusion spyware chain (iOS 15.0 – 15.4.1).
 
+---
 
 ## 📦 Compatibility
 
-* **Architecture:** Rootful (iphoneos-arm64)
+* **Architecture:** Rootful (`iphoneos-arm64`)
 * **iOS Versions:** iOS 14.5 - 18.0
-* **Dependencies:** mobilesubstrate, preferenceloader, com.opa334.altlist
+* **Dependencies:** `mobilesubstrate`, `preferenceloader`, `com.opa334.altlist`
+
+---
+
+## 🛠️ Installation
 
 Here are the step-by-step instructions to install your compiled `.deb` file on your device. Since this is a rootful tweak, you can install it easily using Filza or via SSH/Terminal.
 
-### 🛠️ Prerequisites
+### Prerequisites
 Ensure you have the required dependencies installed via your package manager (like Sileo or Zebra), or the installation will fail:
 * `mobilesubstrate` 
 * `preferenceloader` 
 * `com.opa334.altlist`
 
-### Direct Installation (rootful)
+### Direct Installation (Rootful)
 1. Navigate to the **Actions** tab of this repository.
 2. Click the latest successful `Compile Tweak` workflow run.
-3. Download the `AntiDarkSword-Rootlful.deb` artifact at the bottom of the page.
+3. Download the `AntiDarkSword-Rootful.deb` artifact at the bottom of the page.
 4. Transfer the `.deb` to your iPhone and install via Filza, Sileo, or Zebra.
 5. Respring your device.
 
+---
+
 ## ⚙️ Configuration
+
 1. Open your iPhone's native **Settings** app.
 2. Scroll down to the Tweak section and tap **AntiDarkSword**.
-3. **Turn ON** the master Enable Protection switch.
+3. **Turn ON** the master *Enable Protection* switch.
 4. Choose your protection method:
-   * **Preset Rules:** Turn on Enable Preset Rules and select Level 1, 2, or 3 for immediate, system-wide coverage.
+   * **Preset Rules:** Turn on *Enable Preset Rules* and select Level 1, 2, or 3 for immediate, system-wide coverage.
    * **Manual Selection:** If Preset Rules are off, use the **Select Apps...** menu to individually turn ON restrictions for specific apps (all are OFF by default).
 5. Use the **Add Custom Bundle ID / Process** button to paste comma-separated lists of hidden background daemons you wish to restrict. Swipe left on any generated custom ID to delete it.
 6. Tap the **Save** button in the top right corner (available in both the main menu and app list) to apply your new security rules and respring.
 7. To quickly clear your settings, use the **Reset to Defaults** button at the bottom of the main menu.
+
+---
 
 ## 👨‍💻 Developer
 Created by [eolnmsuk](https://venmo.com/user/eolnmsuk)
