@@ -1,0 +1,27 @@
+name: Compile Tweak
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Theos Environment
+        uses: Randomblock1/theos-action@v1
+        with:
+          theos-sdks: 'https://github.com/theos/sdks'
+
+      - name: Compile the Tweak
+        run: make package FINALPACKAGE=1
+
+      - name: Upload .deb File
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiDarkSword-Rootful
+          path: ${{ github.workspace }}/packages/*.deb
