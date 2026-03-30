@@ -17,9 +17,9 @@ AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken de
 ## 📦 Compatibility
 
 * **Architecture:** Rootful (iphoneos-arm64)
-* **iOS Versions:** iOS 14.5 - 18.0 (Tested on A8-A11 devices)
+* **iOS Versions:** iOS 14.5 - 18.0
 * **Dependencies:** mobilesubstrate, preferenceloader, com.opa334.altlist
 
 ## ⚠️ Warning
 
-Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). This may break iMessage, media playback, or network features. Only enable this level if you understand the consequences.
+Even level one disables email / text previews of files, you have to hold the file down and save to files to view it. Enabling Level 3 restricts critical background daemons (like imagent and mediaserverd). Level 3 may break media playback. Only enable this level if you understand to disable if any issues.
