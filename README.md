@@ -83,4 +83,7 @@ Here are the step-by-step instructions to install your compiled `.deb` file on y
 ---
 
 ## 👨‍💻 Developer
-Created by [eolnmsuk](https://venmo.com/user/eolnmsuk)
+
+Created by: [EolnMsuk](https://github.com/EolnMsuk)
+
+Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
