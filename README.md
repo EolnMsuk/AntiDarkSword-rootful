@@ -1,4 +1,4 @@
-<img width="800" height="806" alt="IMG_6776" src="https://github.com/user-attachments/assets/5684beec-5a82-40a6-998b-d13a751c6e36" />
+<img width="800" height="806" alt="IMG_6776" src="https://github.com/user-attachments/assets/e02d758e-60a6-43fb-86c6-c6e8c81e85c7" />
 
 # AntiDarkSword ⚔️
 **System-wide JS kill-switch with exceptions.**
