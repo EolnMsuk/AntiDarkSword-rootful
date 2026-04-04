@@ -9,6 +9,8 @@
             <string>PSGroupCell</string>
             <key>label</key>
             <string>Global Settings</string>
+            <key>footerText</key>
+            <string>You must also enable a preset level or custom rules below to protect your device.</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -24,28 +26,87 @@
             <key>PostNotification</key>
             <string>com.eolnmsuk.antidarkswordprefs/saved</string>
         </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>id</key>
+            <string>UserAgentGroup</string>
+            <key>label</key>
+            <string>User Agent Configuration</string>
+            <key>footerText</key>
+            <string>Spoofing User Agent bypasses standard fingerprinting modules used by Coruna and DarkSword.</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSLinkListCell</string>
+            <key>detail</key>
+            <string>PSListItemsController</string>
+            <key>default</key>
+            <string>Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1</string>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>selectedUAPreset</string>
+            <key>label</key>
+            <string>Select UA</string>
+            <key>validTitles</key>
+            <array>
+                <string>iPhone (18.1) - Default</string>
+                <string>iPhone (17.6.1)</string>
+                <string>iPhone (16.7.8)</string>
+                <string>iPhone (15.8.2)</string>
+                <string>iPad (18.1)</string>
+                <string>Android (Chrome)</string>
+                <string>Windows (Edge)</string>
+                <string>Mac (macOS 14.5)</string>
+                <string>Custom String</string>
+            </array>
+            <key>validValues</key>
+            <array>
+                <string>Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1</string>
+                <string>Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1</string>
+                <string>Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1</string>
+                <string>Mozilla/5.0 (iPhone; CPU iPhone OS 15_8_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.6 Mobile/15E148 Safari/604.1</string>
+                <string>Mozilla/5.0 (iPad; CPU OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1</string>
+                <string>Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36</string>
+                <string>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0</string>
+                <string>Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15</string>
+                <string>CUSTOM</string>
+            </array>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSEditTextCell</string>
+            <key>id</key>
+            <string>CustomUATextField</string>
+            <key>default</key>
+            <string></string>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>customUAString</string>
+            <key>label</key>
+            <string>Custom</string>
+            <key>placeholder</key>
+            <string>Type manual UA here...</string>
+            <key>returnKeyType</key>
+            <integer>9</integer>
+            <key>noAutoCorrect</key>
+            <true/>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
         
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
+            <key>id</key>
+            <string>PresetRulesGroup</string>
             <key>label</key>
             <string>Preset Rules</string>
-            <key>footerText</key>
-            <string>Level 1: All Native Apple Apps. Level 2: + All Major 3rd-Party Browsers &amp; Social Media. Level 3: + System Daemons (imagent, mediaserverd, networkd). ⚠️ WARNING: Level 3 restricts critical background daemons to prevent zero-clicks. This may break iMessage, media playback, or network features. ONLY enable if you know what you are doing!</string>
-        </dict>
-        <dict>
-            <key>cell</key>
-            <string>PSSwitchCell</string>
-            <key>default</key>
-            <false/>
-            <key>defaults</key>
-            <string>com.eolnmsuk.antidarkswordprefs</string>
-            <key>key</key>
-            <string>autoProtectEnabled</string>
-            <key>label</key>
-            <string>Enable Preset Rules</string>
-            <key>set</key>
-            <string>setAutoProtect:specifier:</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -80,9 +141,9 @@
             <key>id</key>
             <string>AppPermissionsGroup</string>
             <key>label</key>
-            <string>App Permissions (JS)</string>
+            <string>Manual Rules</string>
             <key>footerText</key>
-            <string>All apps are allowed to run JavaScript by default. Turn an app ON to explicitly restrict its web access and protect it from exploits.</string>
+            <string>Manually protect apps that are not in the current Level preset.</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -90,11 +151,15 @@
             <key>id</key>
             <string>SelectApps</string>
             <key>detail</key>
-            <string>AntiDarkSwordAppListController</string>
+            <string>AntiDarkSwordAltListController</string>
             <key>defaults</key>
             <string>com.eolnmsuk.antidarkswordprefs</string>
             <key>key</key>
-            <string>restrictedApps</string>
+            <string>restrictedApps-</string>
+            <key>ALSettingsKeyPrefix</key>
+            <string>restrictedApps-</string>
+            <key>ALChangeNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
             <key>label</key>
             <string>Select Apps...</string>
             <key>sections</key>
@@ -115,16 +180,16 @@
             <key>useSearchBar</key>
             <true/>
         </dict>
-        
+
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>id</key>
             <string>AdvancedRestrictionsGroup</string>
             <key>label</key>
-            <string>Advanced Restrictions</string>
+            <string>Advanced Custom Rules</string>
             <key>footerText</key>
-            <string>Swipe left on any custom ID below to delete it. Add bundle IDs or process names for daemons you want to restrict manually.</string>
+            <string>Add bundle IDs or process names. Swipe left on any custom ID below to delete it.</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -136,22 +201,160 @@
             <key>id</key>
             <string>AddCustomIDButton</string>
         </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>id</key>
+            <string>GlobalMitigationsGroup</string>
+            <key>label</key>
+            <string>Global Mitigation Rules (BETA)</string>
+            <key>footerText</key>
+            <string>Enabling these options enables that mitigation system-wide. "Enable Protection" at the top must remain ON for these to apply.</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalUASpoofingEnabled</string>
+            <key>label</key>
+            <string>Spoof User Agent</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalDisableJS</string>
+            <key>label</key>
+            <string>Disable JavaScript</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalDisableRTC</string>
+            <key>label</key>
+            <string>Disable WebGL &amp; WebRTC</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalDisableMedia</string>
+            <key>label</key>
+            <string>Disable Media Auto-Play</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalDisableIMessageDL</string>
+            <key>label</key>
+            <string>Disable Msg Auto-Download</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>globalDisableFileAccess</string>
+            <key>label</key>
+            <string>Disable Local File Access</string>
+            <key>set</key>
+            <string>setGlobalMitigation:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+        </dict>
         
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Info</string>
         </dict>
         <dict>
             <key>cell</key>
             <string>PSButtonCell</string>
             <key>label</key>
-            <string>Reset to Defaults</string>
+            <string>GitHub</string>
+            <key>action</key>
+            <string>openGitHub</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>label</key>
+            <string>Donate</string>
+            <key>action</key>
+            <string>openVenmo</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Reset All Settings To Default</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>label</key>
+            <string>Reset to Default</string>
             <key>action</key>
             <string>resetToDefaults</string>
             <key>isDestructive</key>
             <true/>
         </dict>
     </array>
+    
     <key>title</key>
     <string>AntiDarkSword</string>
 </dict>
