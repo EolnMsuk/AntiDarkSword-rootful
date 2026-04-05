@@ -1,6 +1,6 @@
 <img width="1496" height="1127" alt="readme" src="https://github.com/user-attachments/assets/3e064f8b-427e-44b2-ae42-3fbc17a65365" />
 
-# AntiDarkSword ⚔️ (Rootless Roothide)
+# AntiDarkSword ⚔️ (Rootful)
 
 AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit and iMessage-based exploits. Built on a modernized, zero-crash architecture, it significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks without compromising system stability.
 
@@ -56,13 +56,12 @@ By disabling WebKit JIT and JavaScriptCore attack vectors, this tweak prevents s
 
   * **iOS Versions:** iOS 15.0 – 17.0
   * **Architecture:** arm64 / arm64e (A11 through A16/M-series fat binary)
-  * **Jailbreaks:** \* **Rootless:** Dopamine (iOS 15.0 – 17.0), Palera1n (iOS 15.0 – 16.7.x)
-      * **Roothide:** Dopamine Roothide 2 (via Roothide Patcher)
-      * **Rootful:** Palera1n / Checkm8 users should use: [AntiDarkSword-rootful](https://github.com/EolnMsuk/AntiDarkSword-rootful)
+  * **Jailbreaks:** **Rootful Environments ONLY** (e.g., checkra1n, Palera1n Rootful).
+      * **Rootless/Roothide:** Dopamine and Rootless Palera1n users must use the standard version: [AntiDarkSword (Rootless)](https://github.com/EolnMsuk/AntiDarkSword)
 
 ## 📦 Dependencies
 
-Before installing this tweak, you **must** install the following from your package manager (Sileo/Zebra):
+Before installing this tweak, you **must** install the following from your package manager (Cydia/Sileo/Zebra):
 
   * `mobilesubstrate`
   * `preferenceloader`
@@ -70,23 +69,11 @@ Before installing this tweak, you **must** install the following from your packa
 
 ## 🛠️ Installation Instructions
 
-### Option 1: Installation (Rootless)
-
-1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword/releases)** page of this repository.
+1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword-rootful/releases)** page of this repository.
 2.  Click on the latest release version.
 3.  Under the **Assets** section, download the attached `.deb` file.
-4.  Open the `.deb` file on your iPhone and install it via your preferred package manager (Sileo, Zebra, or Filza).
+4.  Open the `.deb` file on your iPhone and install it via your preferred package manager (Cydia, Sileo, Zebra, or Filza).
 5.  Respring your device.
-
-### Option 2: Installation (Roothide)
-
-If you are using Dopamine Roothide 2 to bypass jailbreak detection, you must patch the `.deb` before installing:
-
-1.  Download the `.deb` file from the **[Releases](https://github.com/EolnMsuk/AntiDarkSword/releases)** page.
-2.  Send the file to your iPhone.
-3.  Open the **Roothide Patcher** app.
-4.  Select the `.deb` file and let the app convert the rootless paths to dynamic Roothide paths.
-5.  Open the newly generated `-roothide.deb` file in **Sileo** or **Filza**, tap Install, and Respring.
 
 ## ⚙️ Configuration
 
@@ -101,14 +88,12 @@ If you are using Dopamine Roothide 2 to bypass jailbreak detection, you must pat
 6.  **Apply Changes:** Tap the **Save** button in the top right corner. The tweak will intelligently determine if a quick Respring is sufficient, or if a Userspace Reboot is required (necessary when modifying core daemons).
 
 > [\!WARNING]
-> **Remove any apps you want secured from Roothide's Blacklist / allow tweak through Choicy.** This allows the tweak to inject and filter that app.
+> **Tweak Restrictors:** Make sure AntiDarkSword is allowed to inject into apps if you are using tweak restrictors like Choicy.
 
 -----
 
 ## 👨‍💻 Developer
 
 Created by: [EolnMsuk](https://github.com/EolnMsuk)
-
-Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
 
 Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
