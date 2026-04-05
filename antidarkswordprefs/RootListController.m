@@ -1380,7 +1380,7 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         
         pid_t pid;
         const char* args[] = {"launchctl", "reboot", "userspace", NULL};
-        posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
+        posix_spawn(&pid, "/usr/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
     }]];
     [self presentViewController:alert animated:YES completion:nil];
 }
@@ -1400,13 +1400,13 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         [defaults setBool:NO forKey:@"ADSPendingDaemonChanges"];
         [defaults synchronize];
         
-        pid_t pid;
+pid_t pid;
         if (needsReboot) {
             const char* args[] = {"launchctl", "reboot", "userspace", NULL};
-            posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
+            posix_spawn(&pid, "/usr/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
         } else {
             const char* args[] = {"killall", "backboardd", NULL};
-            posix_spawn(&pid, "/var/jb/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
+            posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
         }
     }]];
     [self presentViewController:alert animated:YES completion:nil];
