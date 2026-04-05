@@ -20,18 +20,22 @@ jobs:
         with:
           theos-sdks: 'https://github.com/theos/sdks'
 
-      - name: Load Local AltList Framework
+      - name: Fix AltList Path & Load Framework
         run: |
+          echo "Fixing AltList dylib ID for rootful..."
+          install_name_tool -id /Library/Frameworks/AltList.framework/AltList vendor/AltList.framework/AltList
           echo "Copying AltList.framework from local repository to Theos..."
           cp -r vendor/AltList.framework $THEOS/lib/
 
       - name: Compile the Tweak
-        run: make package FINALPACKAGE=1
+        run: |
+          make clean
+          make package FINALPACKAGE=1
 
       - name: Upload .deb as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AntiDarkSword-Rootless
+          name: AntiDarkSword-Rootful
           path: ${{ github.workspace }}/packages/*.deb
 
       - name: Create GitHub Release
