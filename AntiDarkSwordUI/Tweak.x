@@ -3,6 +3,24 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <CoreFoundation/CoreFoundation.h>
 
+// =========================================================
+// PRIVATE WEBKIT INTERFACES (JIT & LOCKDOWN MODE)
+// =========================================================
+@interface WKWebpagePreferences (Private)
+@property (nonatomic, assign) BOOL lockdownModeEnabled;
+@end
+
+@interface _WKProcessPoolConfiguration : NSObject
+@property (nonatomic, assign) BOOL JITEnabled;
+@end
+
+@interface WKProcessPool (Private)
+@property (nonatomic, readonly) _WKProcessPoolConfiguration *_configuration;
+@end
+
+// =========================================================
+// PRIVATE IMESSAGE INTERFACES
+// =========================================================
 @interface IMFileTransfer : NSObject
 - (BOOL)isAutoDownloadable;
 - (BOOL)canAutoDownload;
@@ -12,6 +30,7 @@
 - (BOOL)_needsPreviewGeneration;
 @end
 
+// Rootful Path
 #define PREFS_PATH @"/var/mobile/Library/Preferences/com.eolnmsuk.antidarkswordprefs.plist"
 
 static _Atomic BOOL currentProcessRestricted = NO;
@@ -21,6 +40,8 @@ static NSString *customUAString = @"";
 static BOOL shouldSpoofUA = NO;
 
 // Global Overrides
+static BOOL globalDisableJIT = NO;
+static BOOL globalDisableJIT15 = NO;
 static BOOL globalDisableJS = NO;
 static BOOL globalDisableMedia = NO;
 static BOOL globalDisableRTC = NO;
@@ -28,6 +49,8 @@ static BOOL globalDisableFileAccess = NO;
 static BOOL globalDisableIMessageDL = NO;
 
 // App-Specific Granular Features
+static BOOL disableJIT = YES;
+static BOOL disableJIT15 = YES;
 static BOOL disableJS = YES;
 static BOOL disableMedia = YES;
 static BOOL disableRTC = YES;
@@ -35,6 +58,8 @@ static BOOL disableFileAccess = YES;
 static BOOL disableIMessageDL = YES;
 
 // Final Evaluated States
+static BOOL applyDisableJIT = NO;
+static BOOL applyDisableJIT15 = NO;
 static BOOL applyDisableJS = NO;
 static BOOL applyDisableMedia = NO;
 static BOOL applyDisableRTC = NO;
@@ -47,7 +72,6 @@ static void loadPrefs() {
         prefs = [NSDictionary dictionaryWithContentsOfFile:PREFS_PATH];
     }
     
-    // Fallback: If sandbox blocks direct file access, use IPC via CFPreferences
     if (!prefs || ![prefs isKindOfClass:[NSDictionary class]]) {
         CFArrayRef keyList = CFPreferencesCopyKeyList(CFSTR("com.eolnmsuk.antidarkswordprefs"), kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
         if (keyList) {
@@ -97,6 +121,8 @@ static void loadPrefs() {
 
         globalTweakEnabled = [prefs[@"enabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"enabled"] boolValue] : NO;
         globalUASpoofingEnabled = [prefs[@"globalUASpoofingEnabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalUASpoofingEnabled"] boolValue] : NO;
+        globalDisableJIT = [prefs[@"globalDisableJIT"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJIT"] boolValue] : NO;
+        globalDisableJIT15 = [prefs[@"globalDisableJIT15"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJIT15"] boolValue] : NO;
         globalDisableJS = [prefs[@"globalDisableJS"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJS"] boolValue] : NO;
         globalDisableMedia = [prefs[@"globalDisableMedia"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableMedia"] boolValue] : NO;
         globalDisableRTC = [prefs[@"globalDisableRTC"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableRTC"] boolValue] : NO;
@@ -209,50 +235,17 @@ static void loadPrefs() {
     disableRTC = YES;
     disableIMessageDL = YES;
     BOOL spoofUARule = YES;
+    disableJIT = YES;
+    disableJIT15 = YES;
     disableJS = YES;
     disableFileAccess = YES;
-
-    NSArray *daemons = @[
-        @"com.apple.appstored", @"com.apple.itunesstored",
-        @"com.apple.imagent", @"imagent", @"com.apple.mediaserverd", @"mediaserverd",
-        @"com.apple.networkd", @"networkd", @"com.apple.apsd", @"apsd",
-        @"com.apple.identityservicesd", @"identityservicesd", @"com.apple.nsurlsessiond",
-        @"com.apple.cfnetwork"
-    ];
-    NSArray *browsers = @[
-        @"com.apple.mobilesafari", @"com.apple.SafariViewService",
-        @"com.google.chrome.ios", @"org.mozilla.ios.Firefox", 
-        @"com.brave.ios.browser", @"com.duckduckgo.mobile.ios"
-    ];
-    NSArray *utilsAndAI = @[
-        @"com.github.stormbreaker.prod", @"com.google.gemini",
-        @"com.openai.chat", @"com.deepseek.chat",
-        @"org.coolstar.SileoStore", @"xyz.willy.Zebra", @"com.tigisoftware.Filza",
-        @"com.apple.Maps", @"com.apple.weather", @"com.apple.mobilenotes",
-        @"com.apple.mobilecal", @"com.apple.stocks", @"com.apple.iBooks"
-    ];
-    
-    if (matchedID) {
-        if ([daemons containsObject:matchedID]) {
-            spoofUARule = NO;
-        } else if ([utilsAndAI containsObject:matchedID]) {
-            if (autoProtectLevel < 3) {
-                disableJS = NO;
-                disableFileAccess = NO;
-            }
-        } else if ([browsers containsObject:matchedID] && autoProtectLevel < 3) {
-            disableJS = NO;
-        }
-    } else if (processName) {
-        if ([processName containsString:@"daemon"] || [processName hasSuffix:@"d"]) {
-            spoofUARule = NO;
-        }
-    }
 
     if (currentProcessRestricted && matchedID && prefs && [prefs isKindOfClass:[NSDictionary class]]) {
         NSString *dictKey = [NSString stringWithFormat:@"TargetRules_%@", matchedID];
         NSDictionary *appRules = prefs[dictKey];
         if (appRules && [appRules isKindOfClass:[NSDictionary class]]) {
+            if ([appRules[@"disableJIT"] respondsToSelector:@selector(boolValue)]) disableJIT = [appRules[@"disableJIT"] boolValue];
+            if ([appRules[@"disableJIT15"] respondsToSelector:@selector(boolValue)]) disableJIT15 = [appRules[@"disableJIT15"] boolValue];
             if ([appRules[@"disableJS"] respondsToSelector:@selector(boolValue)]) disableJS = [appRules[@"disableJS"] boolValue];
             if ([appRules[@"disableMedia"] respondsToSelector:@selector(boolValue)]) disableMedia = [appRules[@"disableMedia"] boolValue];
             if ([appRules[@"disableRTC"] respondsToSelector:@selector(boolValue)]) disableRTC = [appRules[@"disableRTC"] boolValue];
@@ -262,6 +255,8 @@ static void loadPrefs() {
         }
     }
 
+    applyDisableJIT = globalTweakEnabled && (globalDisableJIT || (currentProcessRestricted && disableJIT));
+    applyDisableJIT15 = globalTweakEnabled && (globalDisableJIT15 || (currentProcessRestricted && disableJIT15));
     applyDisableJS = globalTweakEnabled && (globalDisableJS || (currentProcessRestricted && disableJS));
     applyDisableMedia = globalTweakEnabled && (globalDisableMedia || (currentProcessRestricted && disableMedia));
     applyDisableRTC = globalTweakEnabled && (globalDisableRTC || (currentProcessRestricted && disableRTC));
@@ -331,14 +326,36 @@ static void loadPrefs() {
 }
 %end
 
-
 %hook WKWebView
 
 - (instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration {
+    
+    // Nuclear Fallback
     if (applyDisableJS) {
         if ([configuration respondsToSelector:@selector(defaultWebpagePreferences)]) configuration.defaultWebpagePreferences.allowsContentJavaScript = NO;
         if ([configuration.preferences respondsToSelector:@selector(setJavaScriptEnabled:)]) configuration.preferences.javaScriptEnabled = NO;
         if ([configuration.preferences respondsToSelector:@selector(setJavaScriptCanOpenWindowsAutomatically:)]) configuration.preferences.javaScriptCanOpenWindowsAutomatically = NO;
+    }
+
+    // iOS 16 Surgical JIT Mitigation
+    if (applyDisableJIT) {
+        if ([configuration respondsToSelector:@selector(defaultWebpagePreferences)]) {
+            if ([configuration.defaultWebpagePreferences respondsToSelector:@selector(setLockdownModeEnabled:)]) {
+                [(id)configuration.defaultWebpagePreferences setLockdownModeEnabled:YES];
+            }
+        }
+    }
+    
+    // iOS 15 Surgical JIT Mitigation
+    if (applyDisableJIT15 || applyDisableJIT) {
+        if ([configuration respondsToSelector:@selector(processPool)]) {
+            if ([configuration.processPool respondsToSelector:@selector(_configuration)]) {
+                id poolConfig = [(id)configuration.processPool _configuration];
+                if ([poolConfig respondsToSelector:@selector(setJITEnabled:)]) {
+                    [(id)poolConfig setJITEnabled:NO];
+                }
+            }
+        }
     }
     
     if (applyDisableMedia) {
@@ -380,10 +397,33 @@ static void loadPrefs() {
 - (instancetype)initWithCoder:(NSCoder *)coder {
     WKWebView *webView = %orig(coder);
     if (!webView) return nil;
+    
+    // Nuclear Fallback
     if (applyDisableJS) {
         if ([webView.configuration respondsToSelector:@selector(defaultWebpagePreferences)]) webView.configuration.defaultWebpagePreferences.allowsContentJavaScript = NO;
         if ([webView.configuration.preferences respondsToSelector:@selector(setJavaScriptEnabled:)]) webView.configuration.preferences.javaScriptEnabled = NO;
         if ([webView.configuration.preferences respondsToSelector:@selector(setJavaScriptCanOpenWindowsAutomatically:)]) webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = NO;
+    }
+
+    // iOS 16 Surgical JIT Mitigation
+    if (applyDisableJIT) {
+        if ([webView.configuration respondsToSelector:@selector(defaultWebpagePreferences)]) {
+            if ([webView.configuration.defaultWebpagePreferences respondsToSelector:@selector(setLockdownModeEnabled:)]) {
+                [(id)webView.configuration.defaultWebpagePreferences setLockdownModeEnabled:YES];
+            }
+        }
+    }
+    
+    // iOS 15 Surgical JIT Mitigation
+    if (applyDisableJIT15 || applyDisableJIT) {
+        if ([webView.configuration respondsToSelector:@selector(processPool)]) {
+            if ([webView.configuration.processPool respondsToSelector:@selector(_configuration)]) {
+                id poolConfig = [(id)webView.configuration.processPool _configuration];
+                if ([poolConfig respondsToSelector:@selector(setJITEnabled:)]) {
+                    [(id)poolConfig setJITEnabled:NO];
+                }
+            }
+        }
     }
     
     if (applyDisableMedia) {
@@ -427,7 +467,7 @@ static void loadPrefs() {
             self.configuration.preferences.javaScriptEnabled = NO;
         }
     }
-    
+
     if (shouldSpoofUA) {
         if ([self respondsToSelector:@selector(setCustomUserAgent:)]) {
             self.customUserAgent = customUAString;
@@ -442,7 +482,6 @@ static void loadPrefs() {
             }
         }
     }
-    
     return %orig;
 }
 
@@ -455,13 +494,12 @@ static void loadPrefs() {
             self.configuration.preferences.javaScriptEnabled = NO;
         }
     }
-    
+
     if (shouldSpoofUA) {
         if ([self respondsToSelector:@selector(setCustomUserAgent:)]) {
             self.customUserAgent = customUAString;
         }
     }
-    
     return %orig;
 }
 
