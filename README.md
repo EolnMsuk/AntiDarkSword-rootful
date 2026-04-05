@@ -1,6 +1,6 @@
-<img width="1498" height="1345" alt="readme" src="https://github.com/user-attachments/assets/6ce21150-b3b2-4586-983b-0eb3035bd0f3" />
+<img width="1496" height="1127" alt="readme" src="https://github.com/user-attachments/assets/3e064f8b-427e-44b2-ae42-3fbc17a65365" />
 
-# AntiDarkSword ⚔️ (Rootful)
+# AntiDarkSword ⚔️ (Rootless Roothide)
 
 AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit and iMessage-based exploits. Built on a modernized, zero-crash architecture, it significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks without compromising system stability.
 
@@ -8,32 +8,37 @@ AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken de
 
 ## 🔍 How the Protection Works (Allow-By-Default)
 
-To protect yourself, you must go into the tweak settings and explicitly **RESTRICT** the apps you want to lock down. You can do this manually by selecting specific apps, or by enabling the built-in **Preset Rules** tiers.
+To protect yourself, you must go into the tweak settings and enable one of the Preset Rules tiers or explicitly RESTRICT the apps you want to lock down.
 
-> **Note:** You can specify *which* protections are active for what apps. Some restrictions will break UI, specifically JavaScript.
+**🛡️ Modular Lockdown Mode & Firmware Awareness**
+AntiDarkSword effectively acts as a "Modular Lockdown Mode," featuring intelligent OS detection to adapt to your device's exact capabilities, bypassing the need for Apple's Native Lockdown Mode:
+* **For iOS 16+:** It hooks into the exact same WebKit (`lockdownModeEnabled`) and ChatKit (`isAutoDownloadable`) internal logic gates used by Apple's own security engineers to surgically disable the vulnerable JIT compiler.
+* **For iOS 15.x:** It utilizes undocumented WebKit `_WKProcessPoolConfiguration` APIs (`JITEnabled`) to surgically disable the JIT compiler natively, bridging the security gap for older devices that lack a system-wide Lockdown Mode. A strict, nuclear JavaScript kill-switch is also available as an ultimate fallback.
+
+Because it targets the specific rendering and downloading processes that exploit kits use as entry points, this tweak protects equally—if not more—against known zero-click payloads, while allowing you to keep essential system features functional. You retain your wired accessory permissions, shared albums, smart home integrations, and the baseline UI of your safe apps, while neutralizing the exact memory-corruption vulnerabilities attackers rely on.
 
 ## ✨ Features
 
-  * **WebKit Hardening:** Forcibly disables JavaScript execution, inline media auto-playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access within targeted web views.
-  * **iMessage Mitigation:** Defends against BlastPass/FORCEDENTRY-style attacks by disabling automatic attachment downloading and preview generation.
-  * **Granular App Controls:** Tap on any restricted app in your settings to customize its specific mitigations. Want to disable WebRTC but keep JavaScript for a specific browser? You can now do that.
+  * **WebKit Hardening:** Forcibly disables the JIT compiler, inline media auto-playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access within targeted web views. By disabling the highly-targeted JIT compiler while allowing baseline interpreted JavaScript, your apps retain their UI functionality while neutralizing memory-corruption zero-days.
+  * **iMessage Mitigation:** Defends against BlastPass/FORCEDENTRY-style attacks by disabling automatic attachment downloading and preview generation within IMCore and ChatKit.
+  * **Granular App Controls:** Tap on any restricted app in your settings to customize its specific mitigations. Want to disable WebRTC but keep JIT enabled for a specific browser? You can do that. 
   * **Zero-Crash Architecture:** Completely separates heavy web mitigations from background system tasks. This physical isolation guarantees that locking down background daemons will never cause memory limit crashes or respring loops.
-  * **Global Mitigations BETA:** Extreme system-wide kill-switches that apply mitigations to *every* process indiscriminately. Intended for emergency lockdowns only.
+  * **Global Mitigations (BETA):** Extreme system-wide kill-switches that apply mitigations to *every* process indiscriminately. Intended for emergency lockdowns only.
   * **User Agent Spoofing:** Globally spoof the `WKWebView` Custom User Agent for restricted apps to bypass strict fingerprinting modules. Includes modern presets (iOS 18.1, Android Chrome, Windows Edge, macOS, etc.) or the ability to inject a custom string.
   * **Tiered Protection:**
-      * **Level 1:** Protects native Apple apps and services.
+      * **Level 1:** Protects native Apple apps and services (Safari, Mail and Messages).
       * **Level 2:** Expands protection to major third-party browsers and social media apps.
       * **Level 3:** Locks down critical system daemons to prevent daemon-level zero-clicks.
   * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific background tasks. Swipe-to-delete makes management easy.
 
 > [\!WARNING]
-> **All Levels disable email and text previews of files.** You have to hold the file down and save it to the Files app to view it.
+> **All Levels by default disable file previews for email and text.** You have to hold the file down and save it to the Files app to view it.
 >
-> **Level 3 restricts critical background daemons.** `imagent` and `mediaserverd` filtering may break media playback in some apps. Lower your level if you experience issues.
+> **Level 3 restricts critical background daemons.** `imagent` and `mediaserverd` filtering. Lower your level if you experience any issues.
 
 ## 🛑 Mitigated Exploits
 
-By disabling WebKit and JavaScriptCore attack vectors, this tweak prevents several known exploit chains:
+By disabling WebKit JIT and JavaScriptCore attack vectors, this tweak prevents several known exploit chains:
 
   * **DarkSword:** Full-chain, JavaScript-based exploit kit (iOS 18.4 – 18.7).
   * **Coruna:** JavaScript-reliant iOS exploit kit (iOS 13.0 – 17.2.1).
@@ -50,13 +55,14 @@ By disabling WebKit and JavaScriptCore attack vectors, this tweak prevents sever
 ## 📱 Compatibility
 
   * **iOS Versions:** iOS 15.0 – 17.0
-  * **Architecture:** arm64 / arm64e (A11 through A16/M-series)
-  * **Jailbreaks:** \* **Rootful:** Checkra1n, Palera1n (Rootful mode), unc0ver, Taurine, XinaA15.
-      * **Rootless / Roothide:** Dopamine or Palera1n (Rootless) users must use the main repository: [AntiDarkSword (Rootless)](https://github.com/EolnMsuk/AntiDarkSword/)
+  * **Architecture:** arm64 / arm64e (A11 through A16/M-series fat binary)
+  * **Jailbreaks:** \* **Rootless:** Dopamine (iOS 15.0 – 17.0), Palera1n (iOS 15.0 – 16.7.x)
+      * **Roothide:** Dopamine Roothide 2 (via Roothide Patcher)
+      * **Rootful:** Palera1n / Checkm8 users should use: [AntiDarkSword-rootful](https://github.com/EolnMsuk/AntiDarkSword-rootful)
 
 ## 📦 Dependencies
 
-Before installing this tweak, you **must** install the following from your package manager (Cydia/Sileo/Zebra):
+Before installing this tweak, you **must** install the following from your package manager (Sileo/Zebra):
 
   * `mobilesubstrate`
   * `preferenceloader`
@@ -64,13 +70,23 @@ Before installing this tweak, you **must** install the following from your packa
 
 ## 🛠️ Installation Instructions
 
-### Standard Installation (Rootful)
+### Option 1: Installation (Rootless)
 
-1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword-rootful/releases)** page of this repository.
+1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword/releases)** page of this repository.
 2.  Click on the latest release version.
 3.  Under the **Assets** section, download the attached `.deb` file.
-4.  Open the `.deb` file on your iPhone and install it via your preferred package manager (Cydia, Sileo, Zebra, or Filza).
+4.  Open the `.deb` file on your iPhone and install it via your preferred package manager (Sileo, Zebra, or Filza).
 5.  Respring your device.
+
+### Option 2: Installation (Roothide)
+
+If you are using Dopamine Roothide 2 to bypass jailbreak detection, you must patch the `.deb` before installing:
+
+1.  Download the `.deb` file from the **[Releases](https://github.com/EolnMsuk/AntiDarkSword/releases)** page.
+2.  Send the file to your iPhone.
+3.  Open the **Roothide Patcher** app.
+4.  Select the `.deb` file and let the app convert the rootless paths to dynamic Roothide paths.
+5.  Open the newly generated `-roothide.deb` file in **Sileo** or **Filza**, tap Install, and Respring.
 
 ## ⚙️ Configuration
 
@@ -78,19 +94,21 @@ Before installing this tweak, you **must** install the following from your packa
 2.  Toggle **ON** the master `Enable Protection` switch.
 3.  **User Agent Spoofing:** Select a preset modern user agent (or enter a custom string) to bypass fingerprinting modules.
 4.  **Choose your protection rules:**
-      * **Preset Rules:** Select Level 1, 2, or 3. The protected apps will dynamically appear below. Tap on any app to view or modify its specific mitigation features (like disabling JS vs Media).
+      * **Preset Rules:** Select Level 1, 2, or 3. The protected apps will dynamically appear below. Tap on any app to view or modify its specific mitigation features.
       * **Manual Rules:** Use the **Select Apps...** menu to target apps not covered by your preset. They will highlight in green, and you can tap them to customize their rules.
       * **Advanced Custom Rules:** Add hidden background daemons manually using comma-separated strings.
 5.  **Global Mitigations (BETA):** Use these switches to indiscriminately apply a mitigation to *every* process on the phone. **Warning:** This will break core app functionality and is intended for extreme scenarios only.
 6.  **Apply Changes:** Tap the **Save** button in the top right corner. The tweak will intelligently determine if a quick Respring is sufficient, or if a Userspace Reboot is required (necessary when modifying core daemons).
 
 > [\!WARNING]
-> **Allow the tweak through Choicy** or any other tweak restrictors if you have them enabled. This allows the tweak to securely inject and filter the app.
+> **Remove any apps you want secured from Roothide's Blacklist / allow tweak through Choicy.** This allows the tweak to inject and filter that app.
 
 -----
 
 ## 👨‍💻 Developer
 
 Created by: [EolnMsuk](https://github.com/EolnMsuk)
+
+Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
 
 Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
