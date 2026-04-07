@@ -52,7 +52,7 @@ By disabling WebKit JIT and JavaScriptCore attack vectors, this tweak prevents s
   * **iOS Versions:** iOS 15.0 – 17.0
   * **Architecture:** arm64 / arm64e (A11 through A16/M-series fat binary)
   * **Jailbreaks:** **Rootful Environments ONLY** (e.g., checkra1n, Palera1n Rootful).
-      * **Rootless/Roothide:** Dopamine and Rootless Palera1n users must use the standard version: [AntiDarkSword (Rootless)](https://github.com/EolnMsuk/AntiDarkSword)
+      * **Rootless/Roothide:** Dopamine and Rootless Palera1n users must use the rootless version: [AntiDarkSword (Rootless)](https://github.com/EolnMsuk/AntiDarkSword)
 
 ## 📦 Dependencies
 
