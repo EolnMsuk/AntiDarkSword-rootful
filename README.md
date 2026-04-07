@@ -2,7 +2,7 @@
 
 # AntiDarkSword ⚔️ (Rootful)
 
-AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit (browser) and iMessage-based exploits. Built on a modernized, zero-crash architecture, it significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks without compromising system stability.
+AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit (Safari etc) and iMessage-based exploits. Built on a modernized, zero-crash architecture, it significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks without compromising system stability.
 
 -----
 
@@ -29,8 +29,6 @@ Because it targets the specific rendering and downloading processes that exploit
   * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific background tasks. Swipe-to-delete makes management easy.
 
 > [\!WARNING]
-> **All Levels by default disable file previews for email and text.** You have to hold the file down and save it to the Files app to view it.
->
 > **Level 3 restricts critical background daemons.** `imagent` and `mediaserverd` filtering. Lower your level if you experience any issues.
 
 ## 🛑 Mitigated Exploits
