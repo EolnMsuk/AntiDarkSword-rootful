@@ -28,8 +28,8 @@ Because it targets the specific rendering and downloading processes that exploit
       * **Level 3:** Locks down critical system daemons to prevent daemon-level zero-clicks.
   * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific background tasks. Swipe-to-delete makes management easy.
 
-> [\!WARNING]
-> **Level 3 restricts critical background daemons.** `imagent` and `mediaserverd` filtering. Lower your level if you experience any issues.
+> [!WARNING]
+> **Level 3 restricts critical background daemons.** Lower your level if you experience any issues.
 
 ## 🛑 Mitigated Exploits
 
@@ -51,8 +51,8 @@ By disabling WebKit JIT and JavaScriptCore attack vectors, this tweak prevents s
 
   * **iOS Versions:** iOS 15.0 – 17.0
   * **Architecture:** arm64 / arm64e (A11 through A16/M-series fat binary)
-  * **Jailbreaks:** **Rootful Environments ONLY** (e.g., checkra1n, Palera1n Rootful).
-      * **Rootless/Roothide:** Dopamine and Rootless Palera1n users must use the rootless version: [AntiDarkSword (Rootless)](https://github.com/EolnMsuk/AntiDarkSword)
+  * **Jailbreaks:** * **Rootful:** Palera1n (Rootful)
+      * **Rootless / Roothide:** Dopamine / Palera1n (Rootless) users should use the standard version: [AntiDarkSword](https://github.com/EolnMsuk/AntiDarkSword)
 
 ## 📦 Dependencies
 
@@ -60,9 +60,11 @@ Before installing this tweak, you **must** install the following from your packa
 
   * `mobilesubstrate`
   * `preferenceloader`
-  * `com.opa334.altlist` (AltList)
+  * `altlist`
 
 ## 🛠️ Installation Instructions
+
+### Installation (Rootful)
 
 1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword-rootful/releases)** page of this repository.
 2.  Click on the latest release version.
@@ -82,8 +84,61 @@ Before installing this tweak, you **must** install the following from your packa
 5.  **Global Mitigations (BETA):** Use these switches to indiscriminately apply a mitigation to *every* process on the phone. **Warning:** This will break core app functionality and is intended for extreme scenarios only.
 6.  **Apply Changes:** Tap the **Save** button in the top right corner. The tweak will intelligently determine if a quick Respring is sufficient, or if a Userspace Reboot is required (necessary when modifying core daemons).
 
-> [\!WARNING]
-> **Tweak Restrictors:** Make sure AntiDarkSword is allowed to inject into apps if you are using tweak restrictors like Choicy.
+> [!WARNING]
+> **Remove any apps you want secured from tweak restrictors (e.g., Choicy, Shadow, Liberty Lite).** This allows AntiDarkSword to successfully inject and filter that app.
+
+```text
+Level 1
+├── 🌐 Safari & Safari View Services
+│   ├── OS Baseline (JIT/JS Lockdown)
+│   └── Spoof User Agent: ON
+│
+├── 💬 Apple Messages (MobileSMS, ActivityMessages, iMessageAppsViewService)
+│   ├── OS Baseline (JIT/JS Lockdown)
+│   ├── Disable Media Auto-Play: ON
+│   ├── Disable WebGL & WebRTC: ON
+│   ├── Disable Local File Access: ON
+│   ├── Disable Msg Auto-Download: ON
+│   └── Spoof User Agent: OFF (To prevent breaking internal Apple rendering)
+│
+└── ✉️ Apple Mail & Other Native Apps
+    ├── OS Baseline (JIT/JS Lockdown)
+    ├── Disable Media Auto-Play: ON (Mail)
+    ├── Disable WebGL & WebRTC: ON (Mail)
+    ├── Disable Local File Access: ON (Mail)
+    └── Spoof User Agent: OFF (To prevent breaking Apple OAuth logins)
+
+Level 2
+├── 📱 All Level 1 Native Apple Apps & Rules
+│
+├── 🌐 3rd-Party Browsers (Chrome, Firefox, Brave, DuckDuckGo)
+│   ├── OS Baseline (JIT/JS Lockdown)
+│   └── Spoof User Agent: ON
+│
+├── 💬 3rd-Party Messaging & Email (WhatsApp, Discord, Signal, Telegram, Gmail, Outlook)
+│   ├── OS Baseline (JIT/JS Lockdown)
+│   ├── Disable Media Auto-Play: ON
+│   ├── Disable WebGL & WebRTC: ON
+│   ├── Disable Local File Access: ON
+│   └── Spoof User Agent: ON
+│
+└── 🏦 Social, Finance, & JB Apps (TikTok, Facebook, PayPal, CashApp, Sileo, Zebra, Filza)
+    ├── OS Baseline (JIT/JS Lockdown)
+    └── Spoof User Agent: ON
+
+Level 3
+├── 📱 All Level 1 & Level 2 Apps & Rules
+│
+├── 🌐 Browsers (Safari, Chrome, Firefox, Brave, DuckDuckGo)
+│   ├── OS Baseline (JIT/JS Lockdown)
+│   ├── Spoof User Agent: ON
+│   ├── Disable WebGL & WebRTC: ON (NEW in Level 3)
+│   └── Disable Media Auto-Play: ON (NEW in Level 3)
+│
+└── ⚙️ System Daemons (imagent, mediaserverd, apsd, identityservicesd)
+    ├── WebKit Mitigations: BYPASSED (Daemons don't use standard WebKit rules)
+    └── System Hooking: ON (Disables zero-click payload parsing at the lowest system level)
+```
 
 -----
 
@@ -91,4 +146,4 @@ Before installing this tweak, you **must** install the following from your packa
 
 Created by: [EolnMsuk](https://github.com/EolnMsuk)
 
-Donate 🤗: [eolnmsuk](https://venmo.com/user/eolnmsuk)
+Donate 🤗: [Venmo](https://venmo.com/user/eolnmsuk)
