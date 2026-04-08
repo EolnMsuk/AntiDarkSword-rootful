@@ -1,4 +1,4 @@
-name: Compile & Release Tweak (Rootful)
+name: Compile & Release Tweak
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
 
       - name: Compile the Tweak
         run: |
-          make clean || true
+          make clean
           make package FINALPACKAGE=1
 
       - name: Upload .deb as Artifact
@@ -41,9 +41,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: rootful-build-${{ github.run_number }}
-          name: "AntiDarkSword Rootful Build #${{ github.run_number }}"
-          body: "Automated rootful build of AntiDarkSword compiled directly from the latest push to the main branch."
+          tag_name: build-${{ github.run_number }}
+          name: "AntiDarkSword Build #${{ github.run_number }}"
+          body: "Automated build of AntiDarkSword compiled directly from the latest push to the main branch."
           files: ${{ github.workspace }}/packages/*.deb
           draft: false
           prerelease: false
