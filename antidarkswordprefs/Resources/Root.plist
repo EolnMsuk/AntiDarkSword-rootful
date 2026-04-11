@@ -37,7 +37,7 @@
             <key>label</key>
             <string>User Agent Configuration</string>
             <key>footerText</key>
-            <string>Spoofing User Agent (iOS version) bypasses known payloads for Coruna and DarkSword.</string>
+            <string>Spoofing User Agent bypasses known payloads via browser detection for Coruna and DarkSword.</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -102,6 +102,33 @@
             <string>com.eolnmsuk.antidarkswordprefs/saved</string>
         </dict>
         
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>id</key>
+            <string>DecoyGroup</string>
+            <key>label</key>
+            <string>Corellium Decoy</string>
+            <key>footerText</key>
+            <string>Spoofs the Corellium environment to trigger advanced exploits (like Coruna) to self-destruct.</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.eolnmsuk.antidarkswordprefs</string>
+            <key>key</key>
+            <string>corelliumDecoyEnabled</string>
+            <key>label</key>
+            <string>Enable Corellium Honeypot</string>
+            <key>set</key>
+            <string>setDecoyEnabled:specifier:</string>
+            <key>PostNotification</key>
+            <string>com.eolnmsuk.antidarkswordprefs/saved</string>
+        </dict>
+
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
@@ -346,36 +373,37 @@
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
-        </dict>
-        
-        <dict>
-            <key>cell</key>
-            <string>PSGroupCell</string>
             <key>label</key>
             <string>Info</string>
         </dict>
         <dict>
             <key>cell</key>
-            <string>PSButtonCell</string>
+            <string>PSLinkCell</string>
             <key>label</key>
-            <string>GitHub</string>
-            <key>action</key>
-            <string>openGitHub</string>
+            <string>👨‍💻  Credits</string>
+            <key>detail</key>
+            <string>AntiDarkSwordCreditsController</string>
         </dict>
         <dict>
             <key>cell</key>
             <string>PSButtonCell</string>
             <key>label</key>
-            <string>Donate</string>
+            <string>💰  Donate</string>
             <key>action</key>
             <string>openVenmo</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>label</key>
+            <string>💻  GitHub</string>
+            <key>action</key>
+            <string>openGitHub</string>
         </dict>
 
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
-            <key>label</key>
-            <string>Reset All Settings to Default</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -386,6 +414,13 @@
             <string>resetToDefaults</string>
             <key>isDestructive</key>
             <true/>
+        </dict>
+        
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>id</key>
+            <string>FooterGroup</string>
         </dict>
     </array>
     
