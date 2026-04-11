@@ -1032,13 +1032,9 @@ static inline UIColor *ads_color_red(void) {
                 NSString *version = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"3.8.9";
                 
                 // 2. Native Jailbreak Detection
-                NSString *jbType = @"Rootless"; // Default assumption for /var/jb tweaks
-                if (access("/Library/MobileSubstrate/DynamicLibraries", F_OK) == 0) {
-                    jbType = @"Rootful";
-                }
-                // Check if the native Roothide 'jbroot' API exists in memory
-                if (dlsym(RTLD_DEFAULT, "jbroot")) {
-                    jbType = @"Roothide";
+                NSString *jbType = @"Rootful"; 
+                if (access("/var/jb/Library/MobileSubstrate/DynamicLibraries", F_OK) == 0) {
+                    jbType = @"Rootless";
                 }
                 
                 // 3. Output Format: AntiDarkSword vX.X (iOS 16.1.1 TYPE OF JAILBREAK)
@@ -1215,17 +1211,17 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
     BOOL decoyEnabled = [value boolValue];
     
     pid_t pid;
-    const char* plistPath = "/var/jb/Library/LaunchDaemons/c.eolnmsuk.corelliumdecoy.plist";
+    const char* plistPath = "/Library/LaunchDaemons/c.ghh.corelliumd.plist";
     
     // Safely unload first to prevent bootstrap errors
     const char* unloadArgs[] = {"launchctl", "unload", plistPath, NULL};
-    posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
+    posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
     waitpid(pid, NULL, 0); 
     
     // ONLY load the daemon if both the decoy switch AND the master protection switch are ON
     if (masterEnabled && decoyEnabled) {
         const char* loadArgs[] = {"launchctl", "load", plistPath, NULL};
-        posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)loadArgs, NULL);
+        posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)loadArgs, NULL);
     }
 }
 
@@ -1240,14 +1236,14 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
     
     // Synchronize the decoy daemon state with the master switch instantly
     pid_t pid;
-    const char* plistPath = "/var/jb/Library/LaunchDaemons/c.eolnmsuk.corelliumdecoy.plist";
+    const char* plistPath = "/Library/LaunchDaemons/c.ghh.corelliumd.plist";
     const char* unloadArgs[] = {"launchctl", "unload", plistPath, NULL};
-    posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
+    posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
     waitpid(pid, NULL, 0);
     
     if (masterEnabled && decoyEnabled) {
         const char* loadArgs[] = {"launchctl", "load", plistPath, NULL};
-        posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)loadArgs, NULL);
+        posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)loadArgs, NULL);
     }
     
     // Toggling master protection triggers daemon reloading if high-security targets are active
@@ -1453,8 +1449,8 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         pid_t pid;
         
         // 1. STOP THE GHOST: Unload the Corellium Decoy so it doesn't auto-boot on restart
-        const char* unloadArgs[] = {"launchctl", "unload", "/var/jb/Library/LaunchDaemons/c.eolnmsuk.corelliumdecoy.plist", NULL};
-        posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
+        const char* unloadArgs[] = {"launchctl", "unload", "/Library/LaunchDaemons/c.ghh.corelliumd.plist", NULL};
+        posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)unloadArgs, NULL);
         waitpid(pid, NULL, 0); 
         
         // 2. CLEAN WIPE: Properly destroy the entire preference domain (safer than a loop)
@@ -1465,7 +1461,7 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         
         // 3. REBOOT: Flush the substrate hooks
         const char* rebootArgs[] = {"launchctl", "reboot", "userspace", NULL};
-        posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)rebootArgs, NULL);
+        posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)rebootArgs, NULL);
     }]];
     [self presentViewController:alert animated:YES completion:nil];
 }
@@ -1489,10 +1485,10 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         pid_t pid;
         if (needsReboot) {
             const char* args[] = {"launchctl", "reboot", "userspace", NULL};
-            posix_spawn(&pid, "/var/jb/usr/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
+            posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)args, NULL);
         } else {
             const char* args[] = {"killall", "backboardd", NULL};
-            posix_spawn(&pid, "/var/jb/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
+            posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
         }
     }]];
     [self presentViewController:alert animated:YES completion:nil];
