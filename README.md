@@ -1,4 +1,4 @@
-<img width="1266" height="920" alt="readme" src="https://github.com/user-attachments/assets/2d777c33-979b-4773-bff1-33536c110f88" />
+![readme](https://github.com/user-attachments/assets/32970ad7-7bbc-446d-87b6-e9ab80e6d4cd)
 
 # AntiDarkSword ⚔️ (Rootful)
 
