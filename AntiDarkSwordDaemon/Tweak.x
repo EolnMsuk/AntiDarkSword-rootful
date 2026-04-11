@@ -1,16 +1,11 @@
-// AntiDarkSwordDaemon/Tweak.x
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <substrate.h>
 
-// Import custom logging system from the root folder
 #import "../ADSLogging.h"
 
-// =========================================================
-// PRIVATE IMESSAGE INTERFACES
-// =========================================================
 @interface IMFileTransfer : NSObject
 - (BOOL)isAutoDownloadable;
 - (BOOL)canAutoDownload;
@@ -20,26 +15,18 @@
 - (BOOL)_needsPreviewGeneration;
 @end
 
-#define PREFS_PATH @"/var/jb/var/mobile/Library/Preferences/com.eolnmsuk.antidarkswordprefs.plist"
+#define PREFS_PATH @"/var/mobile/Library/Preferences/com.eolnmsuk.antidarkswordprefs.plist"
 
-// Runtime State Variables
 static _Atomic BOOL currentProcessRestricted = NO;
 static BOOL globalTweakEnabled = NO;
 static BOOL globalUASpoofingEnabled = NO;
 static NSString *customUAString = @"";
 static BOOL shouldSpoofUA = NO;
-static BOOL globalDecoyEnabled = NO;
 
-// App-Specific Granular Features for Daemons
 static BOOL globalDisableIMessageDL = NO;
 static BOOL disableIMessageDL = NO;
 static BOOL applyDisableIMessageDL = NO;
 
-// =========================================================
-// PREFERENCES PARSING HELPERS
-// =========================================================
-
-// Extracts user-defined restricted apps from various preference dictionary formats
 static void parseRestrictedApps(NSDictionary *prefs, NSMutableArray *restrictedAppsArray) {
     id restrictedAppsRaw = prefs[@"restrictedApps"];
     if ([restrictedAppsRaw isKindOfClass:[NSDictionary class]]) {
@@ -70,7 +57,6 @@ static void loadPrefs() {
         prefs = [NSDictionary dictionaryWithContentsOfFile:PREFS_PATH];
     }
 
-    // Fallback via IPC CFPreferences
     if (!prefs || ![prefs isKindOfClass:[NSDictionary class]]) {
         CFArrayRef keyList = CFPreferencesCopyKeyList(CFSTR("com.eolnmsuk.antidarkswordprefs"), kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
         if (keyList) {
@@ -90,10 +76,6 @@ static void loadPrefs() {
         globalTweakEnabled = [prefs[@"enabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"enabled"] boolValue] : NO;
         globalUASpoofingEnabled = [prefs[@"globalUASpoofingEnabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalUASpoofingEnabled"] boolValue] : NO;
         globalDisableIMessageDL = [prefs[@"globalDisableIMessageDL"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableIMessageDL"] boolValue] : NO;
-        
-        // STRICT MASTER SWITCH ENFORCEMENT: Kill hooks if master switch is off
-        BOOL decoyPref = [prefs[@"corelliumDecoyEnabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"corelliumDecoyEnabled"] boolValue] : NO;
-        globalDecoyEnabled = (globalTweakEnabled && decoyPref);
 
         autoProtectLevel = [prefs[@"autoProtectLevel"] respondsToSelector:@selector(integerValue)] ? [prefs[@"autoProtectLevel"] integerValue] : 1;
         id customDaemonIDsRaw = prefs[@"activeCustomDaemonIDs"] ?: prefs[@"customDaemonIDs"];
@@ -124,7 +106,6 @@ static void loadPrefs() {
     NSString *matchedID = nil;
     NSString *targetsToCheck[] = { bundleID, processName };
     
-    // Check Custom Daemons and Manual Apps
     for (int i = 0; i < 2; i++) {
         NSString *target = targetsToCheck[i];
         if (!target) continue;
@@ -135,7 +116,6 @@ static void loadPrefs() {
         }
     }
 
-    // Check Auto-Protect Tiers
     if (!isTargetRestricted && globalTweakEnabled) {
         NSArray *tier1 = @[
             @"com.apple.mobilesafari", @"com.apple.MobileSMS", @"com.apple.mobilemail", @"com.apple.mobilecal", 
@@ -161,9 +141,8 @@ static void loadPrefs() {
             @"com.discoverfinancial.mobile", @"com.usbank.mobilebanking", @"com.monzo.ios", @"com.revolut.iphone", 
             @"com.binance.dev", @"com.kraken.invest", @"com.barclays.ios.bmb", @"com.ally.auto", @"com.navyfederal.navyfederal.mydata"
         ];
-        // 🔴 BUG FIX: Removed mediaserverd to prevent audio deadlocks
         NSArray *tier3 = @[@"com.apple.imagent", @"imagent", @"networkd", @"apsd", @"identityservicesd"];
-        
+
         for (int i = 0; i < 2; i++) {
             NSString *target = targetsToCheck[i];
             if (!target) continue;
@@ -172,6 +151,7 @@ static void loadPrefs() {
             if ([tier1 containsObject:target]) targetMatch = target;
             else if (autoProtectLevel >= 2 && [tier2 containsObject:target]) targetMatch = target;
             else if (autoProtectLevel >= 3 && [tier3 containsObject:target]) targetMatch = target;
+            
             if (targetMatch && ![disabledPresetRules containsObject:targetMatch]) {
                 isTargetRestricted = YES;
                 matchedID = targetMatch;
@@ -191,7 +171,6 @@ static void loadPrefs() {
         @"com.apple.nsurlsessiond", @"com.apple.cfnetwork"
     ];
 
-    // Baseline setting overrides for Daemon defaults
     if (matchedID) {
         if ([daemons containsObject:matchedID]) spoofUARule = NO;
         if ([matchedID isEqualToString:@"com.apple.imagent"] || [matchedID isEqualToString:@"imagent"]) {
@@ -212,6 +191,7 @@ static void loadPrefs() {
 
     applyDisableIMessageDL = globalTweakEnabled && (globalDisableIMessageDL || (currentProcessRestricted && disableIMessageDL));
     shouldSpoofUA = NO;
+    
     if (globalTweakEnabled) {
         if (globalUASpoofingEnabled && customUAString && customUAString.length > 0) {
             shouldSpoofUA = YES;
@@ -227,13 +207,8 @@ static void loadPrefs() {
     if (currentProcessRestricted) {
         ADSLog(@"[STATUS] Daemon protection is ACTIVE. iMessageDL blocked: %d", applyDisableIMessageDL);
     }
-    
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("com.eolnmsuk.antidarkswordprefs/saved"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 }
-
-// =========================================================
-// NATIVE HTTP HEADER SPOOFING 
-// =========================================================
 
 %hook NSMutableURLRequest
 - (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field {
@@ -243,10 +218,6 @@ static void loadPrefs() {
     %orig;
 }
 %end
-
-// =========================================================
-// GLOBAL NSUSERDEFAULTS SPOOFING
-// =========================================================
 
 %hook NSUserDefaults
 - (id)objectForKey:(NSString *)defaultName {
@@ -264,24 +235,14 @@ static void loadPrefs() {
 }
 %end
 
-// =========================================================
-// NATIVE IMESSAGE MITIGATIONS (BLASTPASS / FORCEDENTRY)
-// =========================================================
-
 %hook IMFileTransfer
 - (BOOL)isAutoDownloadable {
-    if (applyDisableIMessageDL) {
-        ADSLog(@"[MITIGATION] Blocked auto-download of an iMessage file transfer.");
-        return NO;
-    }
+    if (applyDisableIMessageDL) return NO;
     return %orig;
 }
 
 - (BOOL)canAutoDownload {
-    if (applyDisableIMessageDL) {
-        ADSLog(@"[MITIGATION] Denied canAutoDownload permission for iMessage transfer.");
-        return NO;
-    }
+    if (applyDisableIMessageDL) return NO;
     return %orig;
 }
 %end
@@ -292,50 +253,3 @@ static void loadPrefs() {
     return %orig;
 }
 %end
-
-// =========================================================
-// CORELLIUM DECOY (ROOTLESS SPOOFING)
-// =========================================================
-
-static int (*orig_access)(const char *path, int amode);
-int hook_access(const char *path, int amode) {
-    if (globalDecoyEnabled && path && strcmp(path, "/usr/libexec/corelliumd") == 0) {
-        return 0; // Lie and say the file exists and is accessible
-    }
-    return orig_access(path, amode);
-}
-
-static int (*orig_stat)(const char *path, struct stat *buf);
-int hook_stat(const char *path, struct stat *buf) {
-    if (globalDecoyEnabled && path && strcmp(path, "/usr/libexec/corelliumd") == 0) {
-        if (buf) {
-            memset(buf, 0, sizeof(struct stat));
-            buf->st_mode = S_IFREG | 0755;
-            buf->st_uid = 0;
-            buf->st_gid = 0;
-            buf->st_size = 34520; // Arbitrary realistic file size
-        }
-        return 0;
-    }
-    return orig_stat(path, buf);
-}
-
-%hook NSFileManager
-- (BOOL)fileExistsAtPath:(NSString *)path {
-    if (globalDecoyEnabled && [path isEqualToString:@"/usr/libexec/corelliumd"]) return YES;
-    return %orig;
-}
-- (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory {
-    if (globalDecoyEnabled && [path isEqualToString:@"/usr/libexec/corelliumd"]) {
-        if (isDirectory) *isDirectory = NO;
-        return YES;
-    }
-    return %orig;
-}
-%end
-
-%ctor {
-    // Bind the C-level file hooks
-    MSHookFunction((void *)access, (void *)hook_access, (void **)&orig_access);
-    MSHookFunction((void *)stat, (void *)hook_stat, (void **)&orig_stat);
-}
