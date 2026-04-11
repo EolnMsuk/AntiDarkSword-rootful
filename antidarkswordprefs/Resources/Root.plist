@@ -218,7 +218,8 @@
             <key>label</key>
             <string>Advanced Custom Rules</string>
             <key>footerText</key>
-            <string>Add bundle IDs or process names. Swipe left on rules to remove.</string>
+            <string>Add bundle IDs or process names.
+Swipe left on rules to remove.</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -281,9 +282,9 @@
             <key>defaults</key>
             <string>com.eolnmsuk.antidarkswordprefs</string>
             <key>key</key>
-            <string>globalDisableJIT15</string>
+            <string>globalDisableLegacyJIT</string>
             <key>label</key>
-            <string>Disable iOS 15 JIT</string>
+            <string>Disable Legacy JIT (&lt; iOS 16)</string>
             <key>set</key>
             <string>setGlobalMitigation:specifier:</string>
             <key>PostNotification</key>
