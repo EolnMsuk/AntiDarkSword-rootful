@@ -347,7 +347,7 @@ static inline UIColor *ads_color_red(void) {
     
     BOOL isIOS16 = ads_is_ios16();
     if ([featureKey isEqualToString:@"disableJIT"]) return isIOS16 && !isDaemon;
-    if ([featureKey isEqualToString:@"disableJIT15"]) return !isIOS16 && !isDaemon;
+    if ([featureKey isEqualToString:@"disableLegacyJIT"]) return !isIOS16 && !isDaemon;
 
     if ([featureKey isEqualToString:@"disableJS"] || 
         [featureKey isEqualToString:@"disableRTC"] || 
@@ -372,7 +372,7 @@ static inline UIColor *ads_color_red(void) {
     NSUserDefaults *defaults = ads_defaults();
     if ([featureKey isEqualToString:@"spoofUA"]) return [defaults boolForKey:@"globalUASpoofingEnabled"];
     if ([featureKey isEqualToString:@"disableJIT"]) return [defaults boolForKey:@"globalDisableJIT"];
-    if ([featureKey isEqualToString:@"disableJIT15"]) return [defaults boolForKey:@"globalDisableJIT15"];
+    if ([featureKey isEqualToString:@"disableLegacyJIT"]) return [defaults boolForKey:@"globalDisableLegacyJIT"];
     if ([featureKey isEqualToString:@"disableJS"]) return [defaults boolForKey:@"globalDisableJS"];
     if ([featureKey isEqualToString:@"disableRTC"]) return [defaults boolForKey:@"globalDisableRTC"];
     if ([featureKey isEqualToString:@"disableMedia"]) return [defaults boolForKey:@"globalDisableMedia"];
@@ -434,7 +434,7 @@ static inline UIColor *ads_color_red(void) {
                     [spec setProperty:@NO forKey:@"enabled"];
                 } else if (isIOS16 && isJSTurnedOn && [featKey isEqualToString:@"disableJIT"]) {
                     [spec setProperty:@NO forKey:@"enabled"];
-                } else if (!isIOS16 && isJSTurnedOn && [featKey isEqualToString:@"disableJIT15"]) {
+                } else if (!isIOS16 && isJSTurnedOn && [featKey isEqualToString:@"disableLegacyJIT"]) {
                     [spec setProperty:@NO forKey:@"enabled"];
                 } else {
                     [spec setProperty:@(isRuleEnabled) forKey:@"enabled"];
@@ -524,8 +524,8 @@ static inline UIColor *ads_color_red(void) {
         BOOL isIOS16 = ads_is_ios16();
 
         if ([featureKey isEqualToString:@"disableJIT"]) return isIOS16 ? @YES : @NO; 
-        if ([featureKey isEqualToString:@"disableJIT15"]) return !isIOS16 ? @YES : @NO; 
-        if ([featureKey isEqualToString:@"disableJS"]) return isIOS16 ? @NO : @YES; 
+        if ([featureKey isEqualToString:@"disableLegacyJIT"]) return !isIOS16 ? @YES : @NO; 
+        if ([featureKey isEqualToString:@"disableJS"]) return isIOS16 ? @NO : @YES;
         
         if ([featureKey isEqualToString:@"spoofUA"]) {
             if ([AntiDarkSwordAppController isDaemonTarget:self.targetID]) return @NO;
@@ -575,8 +575,8 @@ static inline UIColor *ads_color_red(void) {
         if ([value boolValue]) {
             if (isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJIT" forTarget:self.targetID]) {
                 rules[@"disableJIT"] = @YES;
-            } else if (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJIT15" forTarget:self.targetID]) {
-                rules[@"disableJIT15"] = @YES;
+            } else if (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableLegacyJIT" forTarget:self.targetID]) {
+                rules[@"disableLegacyJIT"] = @YES;
             }
         }
         
@@ -777,8 +777,8 @@ static inline UIColor *ads_color_red(void) {
         NSMutableDictionary *rules = [NSMutableDictionary dictionary];
         
         rules[@"disableJIT"] = (isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJIT" forTarget:targetID]) ? @YES : @NO; 
-        rules[@"disableJIT15"] = (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJIT15" forTarget:targetID]) ? @YES : @NO; 
-        rules[@"disableJS"] = (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJS" forTarget:targetID]) ? @YES : @NO; 
+        rules[@"disableLegacyJIT"] = (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableLegacyJIT" forTarget:targetID]) ? @YES : @NO; 
+        rules[@"disableJS"] = (!isIOS16 && [AntiDarkSwordAppController isApplicableFeature:@"disableJS" forTarget:targetID]) ? @YES : @NO;
         
         rules[@"disableMedia"] = @NO;
         rules[@"disableRTC"] = @NO;
@@ -973,7 +973,7 @@ static inline UIColor *ads_color_red(void) {
         NSArray *customIDs = [defaults objectForKey:@"customDaemonIDs"] ?: @[];
         
         NSArray *desiredOrder = @[
-            @"globalUASpoofingEnabled", @"globalDisableJIT", @"globalDisableJIT15",
+            @"globalUASpoofingEnabled", @"globalDisableJIT", @"globalDisableLegacyJIT",
             @"globalDisableJS", @"globalDisableRTC", @"globalDisableMedia",
             @"globalDisableIMessageDL", @"globalDisableFileAccess"
         ];
@@ -992,7 +992,7 @@ static inline UIColor *ads_color_red(void) {
                 if ([key isEqualToString:@"globalDisableJIT"]) {
                     if (!isIOS16 || (isIOS16 && globalJSEnabled)) [s setProperty:@NO forKey:@"enabled"];
                 }
-                if ([key isEqualToString:@"globalDisableJIT15"]) {
+                if ([key isEqualToString:@"globalDisableLegacyJIT"]) {
                     if (isIOS16 || (!isIOS16 && globalJSEnabled)) [s setProperty:@NO forKey:@"enabled"];
                 }
                 globalSpecsDict[key] = s;
@@ -1305,7 +1305,7 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
                 BOOL isIOS16 = ads_is_ios16();
                 NSUserDefaults *defaults = ads_defaults();
                 if (isIOS16) [defaults setBool:YES forKey:@"globalDisableJIT"];
-                else [defaults setBool:YES forKey:@"globalDisableJIT15"];
+                else [defaults setBool:YES forKey:@"globalDisableLegacyJIT"];
                 [defaults synchronize];
             }
             
