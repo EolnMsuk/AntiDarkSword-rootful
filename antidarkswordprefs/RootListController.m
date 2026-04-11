@@ -1361,12 +1361,27 @@ static void PrefsChangedNotification(CFNotificationCenterRef center, void *obser
         [defaults setBool:YES forKey:@"ADSPendingDaemonChanges"];
     }
     
+    // ROOTFUL CORELLIUM AUTO-TOGGLE
+    if (newLevel >= 3 && ![defaults boolForKey:@"corelliumDecoyEnabled"]) {
+        [defaults setBool:YES forKey:@"corelliumDecoyEnabled"];
+        
+        if ([defaults boolForKey:@"enabled"]) {
+            pid_t pid;
+            const char* plistPath = "/Library/LaunchDaemons/c.ghh.corelliumd.plist";
+            const char* loadArgs[] = {"launchctl", "load", plistPath, NULL};
+            posix_spawn(&pid, "/bin/launchctl", NULL, NULL, (char* const*)loadArgs, NULL);
+        }
+    }
+    
     [defaults synchronize];
     [self flagSaveRequirement];
     ads_post_notification();
     
-    _specifiers = nil;
-    [self reloadSpecifiers];
+    // UI MAIN THREAD REFRESH FIX
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_specifiers = nil;
+        [self reloadSpecifiers];
+    });
 }
 
 - (void)addCustomID {
