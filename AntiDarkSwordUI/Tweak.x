@@ -34,7 +34,7 @@ static BOOL shouldSpoofUA = NO;
 
 // Global Overrides
 static BOOL globalDisableJIT = NO;
-static BOOL globalDisableJIT15 = NO;
+static BOOL globalDisableLegacyJIT = NO;
 static BOOL globalDisableJS = NO;
 static BOOL globalDisableMedia = NO;
 static BOOL globalDisableRTC = NO;
@@ -42,7 +42,7 @@ static BOOL globalDisableFileAccess = NO;
 
 // App-Specific Granular Features
 static BOOL disableJIT = NO;
-static BOOL disableJIT15 = NO;
+static BOOL disableLegacyJIT = NO;
 static BOOL disableJS = NO;
 static BOOL disableMedia = NO;
 static BOOL disableRTC = NO;
@@ -50,7 +50,7 @@ static BOOL disableFileAccess = NO;
 
 // Final Evaluated States
 static BOOL applyDisableJIT = NO;
-static BOOL applyDisableJIT15 = NO;
+static BOOL applyDisableLegacyJIT = NO;
 static BOOL applyDisableJS = NO;
 static BOOL applyDisableMedia = NO;
 static BOOL applyDisableRTC = NO;
@@ -99,7 +99,7 @@ static void applyWebKitMitigations(WKWebViewConfiguration *configuration) {
         }
     }
     
-    if ((applyDisableJIT15 || applyDisableJIT) && [configuration respondsToSelector:@selector(processPool)]) {
+    if ((applyDisableLegacyJIT || applyDisableJIT) && [configuration respondsToSelector:@selector(processPool)]) {
         if ([configuration.processPool respondsToSelector:@selector(_configuration)]) {
             id poolConfig = [(id)configuration.processPool _configuration];
             if ([poolConfig respondsToSelector:@selector(setJITEnabled:)]) {
@@ -138,6 +138,7 @@ static void loadPrefs() {
     prefsLoaded = YES;
 
     NSDictionary *prefs = nil;
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:PREFS_PATH]) {
         prefs = [NSDictionary dictionaryWithContentsOfFile:PREFS_PATH];
     }
@@ -158,31 +159,33 @@ static void loadPrefs() {
 
     if (prefs && [prefs isKindOfClass:[NSDictionary class]]) {
         parseRestrictedApps(prefs, restrictedAppsArray);
-        
+
         globalTweakEnabled = [prefs[@"enabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"enabled"] boolValue] : NO;
         globalUASpoofingEnabled = [prefs[@"globalUASpoofingEnabled"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalUASpoofingEnabled"] boolValue] : NO;
         globalDisableJIT = [prefs[@"globalDisableJIT"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJIT"] boolValue] : NO;
-        globalDisableJIT15 = [prefs[@"globalDisableJIT15"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJIT15"] boolValue] : NO;
+        globalDisableLegacyJIT = [prefs[@"globalDisableLegacyJIT"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableLegacyJIT"] boolValue] : NO;
         globalDisableJS = [prefs[@"globalDisableJS"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableJS"] boolValue] : NO;
         globalDisableMedia = [prefs[@"globalDisableMedia"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableMedia"] boolValue] : NO;
         globalDisableRTC = [prefs[@"globalDisableRTC"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableRTC"] boolValue] : NO;
         globalDisableFileAccess = [prefs[@"globalDisableFileAccess"] respondsToSelector:@selector(boolValue)] ? [prefs[@"globalDisableFileAccess"] boolValue] : NO;
-        
+
         autoProtectLevel = [prefs[@"autoProtectLevel"] respondsToSelector:@selector(integerValue)] ? [prefs[@"autoProtectLevel"] integerValue] : 1;
         id customDaemonIDsRaw = prefs[@"activeCustomDaemonIDs"] ?: prefs[@"customDaemonIDs"];
         if ([customDaemonIDsRaw isKindOfClass:[NSArray class]]) activeCustomDaemonIDs = customDaemonIDsRaw;
 
         id disabledPresetRaw = prefs[@"disabledPresetRules"];
         if ([disabledPresetRaw isKindOfClass:[NSArray class]]) disabledPresetRules = disabledPresetRaw;
-        
+
         id presetUARaw = prefs[@"selectedUAPreset"];
         NSString *presetUA = [presetUARaw isKindOfClass:[NSString class]] ? presetUARaw : nil;
+
         if (!presetUA || [presetUA isEqualToString:@"NONE"]) {
             presetUA = @"Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
         }
         
         id manualUARaw = prefs[@"customUAString"];
         NSString *manualUA = [manualUARaw isKindOfClass:[NSString class]] ? manualUARaw : @"";
+
         if ([presetUA isEqualToString:@"CUSTOM"]) {
             NSString *trimmedUA = [manualUA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             customUAString = (trimmedUA.length > 0) ? trimmedUA : @"Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
@@ -244,7 +247,7 @@ static void loadPrefs() {
             if ([tier1 containsObject:target]) targetMatch = target;
             else if (autoProtectLevel >= 2 && [tier2 containsObject:target]) targetMatch = target;
             else if (autoProtectLevel >= 3 && [tier3 containsObject:target]) targetMatch = target;
-            
+
             if (targetMatch && ![disabledPresetRules containsObject:targetMatch]) {
                 isTargetRestricted = YES;
                 matchedID = targetMatch;
@@ -255,19 +258,18 @@ static void loadPrefs() {
     }
     
     currentProcessRestricted = (globalTweakEnabled && isTargetRestricted);
-
     disableMedia = NO;
     disableRTC = NO;
     BOOL spoofUARule = NO;
     disableJIT = NO;
-    disableJIT15 = NO;
+    disableLegacyJIT = NO;
     disableJS = NO;
     disableFileAccess = NO;
 
     if (currentProcessRestricted && isPresetMatch) {
         BOOL isIOS16OrGreater = [[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 16;
         disableJIT = isIOS16OrGreater;
-        disableJIT15 = !isIOS16OrGreater;
+        disableLegacyJIT = !isIOS16OrGreater;
         disableJS = !isIOS16OrGreater;
 
         NSArray *msgAndMail = @[
@@ -277,7 +279,6 @@ static void loadPrefs() {
             @"org.whispersystems.signal", @"ph.telegra.Telegraph", @"com.facebook.Messenger", 
             @"net.whatsapp.WhatsApp", @"com.hammerandchisel.discord", @"com.apple.Passbook"
         ];
-        
         NSArray *browsers = @[
             @"com.apple.mobilesafari", @"com.apple.SafariViewService", @"com.google.chrome.ios", 
             @"org.mozilla.ios.Firefox", @"com.brave.ios.browser", @"com.duckduckgo.mobile.ios"
@@ -308,7 +309,7 @@ static void loadPrefs() {
         NSDictionary *appRules = prefs[dictKey];
         if (appRules && [appRules isKindOfClass:[NSDictionary class]]) {
             if ([appRules[@"disableJIT"] respondsToSelector:@selector(boolValue)]) disableJIT = [appRules[@"disableJIT"] boolValue];
-            if ([appRules[@"disableJIT15"] respondsToSelector:@selector(boolValue)]) disableJIT15 = [appRules[@"disableJIT15"] boolValue];
+            if ([appRules[@"disableLegacyJIT"] respondsToSelector:@selector(boolValue)]) disableLegacyJIT = [appRules[@"disableLegacyJIT"] boolValue];
             if ([appRules[@"disableJS"] respondsToSelector:@selector(boolValue)]) disableJS = [appRules[@"disableJS"] boolValue];
             if ([appRules[@"disableMedia"] respondsToSelector:@selector(boolValue)]) disableMedia = [appRules[@"disableMedia"] boolValue];
             if ([appRules[@"disableRTC"] respondsToSelector:@selector(boolValue)]) disableRTC = [appRules[@"disableRTC"] boolValue];
@@ -318,7 +319,7 @@ static void loadPrefs() {
     }
 
     applyDisableJIT = globalTweakEnabled && (globalDisableJIT || (currentProcessRestricted && disableJIT));
-    applyDisableJIT15 = globalTweakEnabled && (globalDisableJIT15 || (currentProcessRestricted && disableJIT15));
+    applyDisableLegacyJIT = globalTweakEnabled && (globalDisableLegacyJIT || (currentProcessRestricted && disableLegacyJIT));
     applyDisableJS = globalTweakEnabled && (globalDisableJS || (currentProcessRestricted && disableJS));
     applyDisableMedia = globalTweakEnabled && (globalDisableMedia || (currentProcessRestricted && disableMedia));
     applyDisableRTC = globalTweakEnabled && (globalDisableRTC || (currentProcessRestricted && disableRTC));
@@ -365,7 +366,7 @@ static void reloadPrefsNotification() {
         else if ([customUAString containsString:@"Macintosh"]) platform = @"MacIntel";
         else if ([customUAString containsString:@"Windows"]) platform = @"Win32";
         else if ([customUAString containsString:@"Android"]) platform = @"Linux aarch64";
-        
+
         NSString *vendor = @"Apple Computer, Inc.";
         if ([customUAString containsString:@"Chrome"] || [customUAString containsString:@"Android"]) {
             vendor = @"Google Inc.";
@@ -384,7 +385,7 @@ static void reloadPrefsNotification() {
             Object.defineProperty(navigator, 'platform', { get: () => '%@' });\n\
             Object.defineProperty(navigator, 'vendor', { get: () => '%@' });\n\
         ", safeUA, safeAppVersion, platform, vendor];
-        
+
         WKUserScript *antiFingerprintScript = [[WKUserScript alloc] initWithSource:jsSource 
                                                                      injectionTime:WKUserScriptInjectionTimeAtDocumentStart 
                                                                   forMainFrameOnly:NO];
