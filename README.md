@@ -2,90 +2,54 @@
 
 # AntiDarkSword ⚔️ (Rootful)
 
-AntiDarkSword is an advanced iOS security tweak designed to harden jailbroken devices against WebKit (Safari etc) and iMessage-based exploits. Built on a modernized, zero-crash architecture, it significantly reduces your device's attack surface by neutralizing common vectors used in one-click and zero-click attacks without compromising system stability.
+AntiDarkSword is an iOS security tweak that hardens vulnerable jailbroken devices against WebKit and iMessage-based exploits (DarkSword & Coruna). It mitigates / spoofs vectors used in 1-click and 0-click attacks while isolating background daemons.
 
------
+## 🔍 Core Mechanisms
 
-## 🔍 How the Protection Works (Allow-By-Default)
-
-AntiDarkSword effectively acts as a "Modular Lockdown Mode," featuring intelligent OS detection to adapt to your device's exact capabilities, bypassing the need for Apple's Native Lockdown Mode:
-* **For iOS 16+:** It hooks into the exact same WebKit (`lockdownModeEnabled`) and ChatKit (`isAutoDownloadable`) internal logic gates used by Apple's own security engineers to surgically disable the vulnerable JIT compiler.
-* **For iOS 15.x:** It utilizes undocumented WebKit `_WKProcessPoolConfiguration` APIs (`JITEnabled`) to surgically disable the JIT compiler natively, bridging the security gap for older devices that lack a system-wide Lockdown Mode. A strict, nuclear JavaScript kill-switch is also available as an ultimate fallback.
-
-Because it targets the specific rendering and downloading processes that exploit kits use as entry points, this tweak protects equally—if not more—against known zero-click payloads, while allowing you to keep essential system features functional. You retain your wired accessory permissions, shared albums, smart home integrations, and the baseline UI of your safe apps, while neutralizing the exact memory-corruption vulnerabilities attackers rely on.
+The tweak detects native security restrictions based on the iOS version:
+* **iOS 16+:** Disables the JIT compiler by hooking native WebKit (`lockdownModeEnabled`) and ChatKit (`isAutoDownloadable`) logic gates.
+* **iOS 15.x:** Disables the JIT compiler via undocumented WebKit `_WKProcessPoolConfiguration` APIs (`JITEnabled`), bridging the gap for devices lacking native Lockdown Mode. Includes a strict JavaScript execution kill-switch.
 
 ## ✨ Features
 
-  * **WebKit Hardening:** Forcibly disables the JIT compiler, inline media auto-playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access within targeted web views. By disabling the highly-targeted JIT compiler while allowing baseline interpreted JavaScript, your apps retain their UI functionality while neutralizing memory-corruption zero-days.
-  * **iMessage Mitigation:** Defends against BlastPass/FORCEDENTRY-style attacks by disabling automatic attachment downloading and preview generation within IMCore and ChatKit.
-  * **Global Mitigations (BETA):** Extreme system-wide kill-switches that apply mitigations to *every* process indiscriminately. Intended for emergency lockdowns only.
-  * **User Agent Spoofing:** Globally spoof the `WKWebView` Custom User Agent for restricted apps to bypass strict fingerprinting modules. Includes modern presets (iOS 18.1, Android Chrome, Windows Edge, macOS, etc.) or the ability to inject a custom string.
-  * **Granular App Controls:** Tap on any restricted app in your settings to customize its specific mitigations. Want to disable WebRTC but keep JIT enabled for a specific browser? You can do that. 
-  * **Zero-Crash Architecture:** Completely separates heavy web mitigations from background system tasks. This physical isolation guarantees that locking down background daemons will never cause memory limit crashes or respring loops.
-  * **Tiered Protection:**
-      * **Level 1:** Protects native Apple apps and services (Safari, Mail and Messages).
-      * **Level 2:** Expands protection to major third-party browsers and social media apps.
-      * **Level 3:** Locks down critical system daemons to prevent daemon-level zero-clicks.
-  * **Custom Targeting:** Manually specify bundle IDs or process names to restrict specific background tasks. Swipe-to-delete makes management easy.
-
-> [!WARNING]
-> **Level 3 restricts critical background daemons.** Lower your level if you experience any issues.
+* **WebKit Hardening:** Forcibly disables the JIT compiler, inline media auto-playback, Picture-in-Picture, WebGL, WebRTC (peer connections), and local file access in targeted `WKWebView` instances.
+* **iMessage Mitigation:** Blocks automatic attachment downloading and previews within IMCore and ChatKit.
+* **Corellium Honeypot:** Spoofs a research environment using a native background LaunchDaemon (`/usr/libexec/corelliumd`), causing advanced payloads to abort delivery. 
+* **User Agent Spoofing:** Spoofs the `WKWebView` Custom User Agent to bypass fingerprinting. Includes presets for iOS 18.1, Android Chrome, Windows Edge, macOS.
+* **Granular Controls:** Assign app-specific mitigation rules. 
+* **Custom Targeting:** Manually assign rules to custom bundle IDs or background daemons.
+* **Global Mitigations:** System-wide kill-switches that indiscriminately apply mitigations to all processes, use with extreme caution.
+* **Zero-Crash Architecture:** Web mitigations are isolated from system tasks, preventing hardware DSP deadlocks and memory limit crashes.
 
 ## 🛑 Mitigated Exploits
 
-By disabling WebKit JIT and JavaScriptCore attack vectors, this tweak prevents several known exploit chains:
+* **Exploit Kits & Spyware:** DarkSword, Coruna, Predator, PWNYOURHOME, Chaos, Operation Triangulation, Hermit.
+* **iMessage 0-Clicks:** BLASTPASS (PassKit attachments).
+* **CVEs Patched:** CVE-2025-43529, CVE-2024-44308, CVE-2022-42856.
 
-  * **DarkSword:** Full-chain, JavaScript-based exploit kit (iOS 18.4 – 18.7).
-  * **Coruna:** JavaScript-reliant iOS exploit kit (iOS 13.0 – 17.2.1).
-  * **Predator:** Safari JavaScript 1-click spyware (Versions before iOS 16.7).
-  * **BLASTPASS:** iMessage zero-click using PassKit attachments (Versions before iOS 16.6.1).
-  * **PWNYOURHOME:** Zero-click targeting HomeKit or iCloud Photos (iOS 15.0 – 16.3.1).
-  * **Chaos:** Safari WebKit DOM vulnerability exploit (Versions older than 16.3).
-  * **CVE-2025-43529:** Recent WebKit zero-day using memory corruption (Versions prior to iOS 26.2).
-  * **CVE-2024-44308:** WebKit remote code execution via web content (Versions before 18.1.1).
-  * **CVE-2022-42856:** JavaScriptCore type confusion in JIT compiler (iOS 16.0 to 16.1.1 and earlier).
-  * **Operation Triangulation:** iMessage WebKit zero-click chain (iOS 15.7 and older).
-  * **Hermit:** JavaScriptCore type-confusion spyware chain (iOS 15.0 – 15.4.1).
+## 📱 Compatibility & Dependencies
 
-## 📱 Compatibility
+* **iOS Versions:** 15.0 – 17.0
+* **Architecture:** arm64 / arm64e 
+* **Supported Jailbreaks:** * **Rootful:** palera1n (Rootful), unc0ver, checkra1n, XinaA15 (iOS 15.0 – 17.0)
+  * **Rootless / Roothide:** Use [AntiDarkSword](https://github.com/EolnMsuk/AntiDarkSword)
+* **Dependencies:** `mobilesubstrate` (or substitute/ellekit), `preferenceloader`, `altlist`.
 
-  * **iOS Versions:** iOS 15.0 – 17.0
-  * **Architecture:** arm64 / arm64e (A11 through A16/M-series fat binary)
-  * **Jailbreaks:** * **Rootful:** Palera1n (Rootful)
-      * **Rootless / Roothide:** Dopamine / Palera1n (Rootless) users should use the standard version: [AntiDarkSword](https://github.com/EolnMsuk/AntiDarkSword)
+## 🛠️ Installation
 
-## 📦 Dependencies
-
-Before installing this tweak, you **must** install the following from your package manager (Cydia/Sileo/Zebra):
-
-  * `mobilesubstrate`
-  * `preferenceloader`
-  * `altlist`
-
-## 🛠️ Installation Instructions
-
-### Installation (Rootful)
-
-1.  Navigate to the **[Releases](https://github.com/EolnMsuk/AntiDarkSword-rootful/releases)** page of this repository.
-2.  Click on the latest release version.
-3.  Under the **Assets** section, download the attached `.deb` file.
-4.  Open the `.deb` file on your iPhone and install it via your preferred package manager (Cydia, Sileo, Zebra, or Filza).
-5.  Respring your device.
+**Rootful Installation:**
+1. Download the latest `.deb` from the **[Releases](https://github.com/EolnMsuk/AntiDarkSword-rootful/releases)** page.
+2. Install via Sileo, Zebra, or Filza.
+3. Respring.
 
 ## ⚙️ Configuration
 
-1.  Open your iPhone's native **Settings** app and navigate to **AntiDarkSword**.
-2.  Toggle **ON** the master `Enable Protection` switch.
-3.  **User Agent Spoofing:** Select a preset modern user agent (or enter a custom string) to bypass fingerprinting modules.
-4.  **Choose your protection rules:**
-      * **Preset Rules:** Select Level 1, 2, or 3. The protected apps will dynamically appear below. Tap on any app to view or modify its specific mitigation features.
-      * **Manual Rules:** Use the **Select Apps...** menu to target apps not covered by your preset. They will highlight in green, and you can tap them to customize their rules.
-      * **Advanced Custom Rules:** Add hidden background daemons manually using comma-separated strings.
-5.  **Global Mitigations (BETA):** Use these switches to indiscriminately apply a mitigation to *every* process on the phone. **Warning:** This will break core app functionality and is intended for extreme scenarios only.
-6.  **Apply Changes:** Tap the **Save** button in the top right corner. The tweak will intelligently determine if a quick Respring is sufficient, or if a Userspace Reboot is required (necessary when modifying core daemons).
+Configure mitigations via the native **Settings** app. 
 
-> [!WARNING]
-> **Remove any apps you want secured from tweak restrictors (e.g., Choicy, Shadow, Liberty Lite).** This allows AntiDarkSword to successfully inject and filter that app.
+> [!WARNING]  
+> Level 3 restricts critical background daemons; lower the tier if system instability occurs.
+
+### Protection Tiers
 
 ```text
 Level 1
@@ -99,14 +63,14 @@ Level 1
 │   ├── Disable WebGL & WebRTC: ON
 │   ├── Disable Local File Access: ON
 │   ├── Disable Msg Auto-Download: ON
-│   └── Spoof User Agent: OFF (To prevent breaking internal Apple rendering)
+│   └── Spoof User Agent: OFF
 │
 └── ✉️ Apple Mail & Other Native Apps
     ├── OS Baseline (JIT/JS Lockdown)
     ├── Disable Media Auto-Play: ON (Mail)
     ├── Disable WebGL & WebRTC: ON (Mail)
     ├── Disable Local File Access: ON (Mail)
-    └── Spoof User Agent: OFF (To prevent breaking Apple OAuth logins)
+    └── Spoof User Agent: OFF
 
 Level 2
 ├── 📱 All Level 1 Native Apple Apps & Rules
@@ -130,20 +94,20 @@ Level 3
 ├── 📱 All Level 1 & Level 2 Apps & Rules
 │
 ├── 🌐 Browsers (Safari, Chrome, Firefox, Brave, DuckDuckGo)
-│   ├── OS Baseline (JIT/JS Lockdown)
-│   ├── Spoof User Agent: ON
-│   ├── Disable WebGL & WebRTC: ON (NEW in Level 3)
-│   └── Disable Media Auto-Play: ON (NEW in Level 3)
+│   ├── Disable WebGL & WebRTC: ON
+│   └── Disable Media Auto-Play: ON 
 │
-└── ⚙️ System Daemons (imagent, mediaserverd, apsd, identityservicesd)
-    ├── WebKit Mitigations: BYPASSED (Daemons don't use standard WebKit rules)
-    └── System Hooking: ON (Disables zero-click payload parsing at the lowest system level)
+└── ⚙️ System Daemons (imagent, apsd, identityservicesd)
+    ├── WebKit Mitigations: BYPASSED
+    └── System Hooking: ON (Disables zero-click payload parsing)
 ```
 
 -----
 
 ## 👨‍💻 Developer
 
-Created by: [EolnMsuk](https://github.com/EolnMsuk)
+Created by: [EolnMsuk](https://github.com/EolnMsuk) / [AntiDarkSword](https://github.com/EolnMsuk/AntiDarkSword/) 
 
-Donate 🤗: [Venmo](https://venmo.com/user/eolnmsuk)
+Thanks to: [ghh-jb](https://github.com/ghh-jb) / [CorelliumDecoy](https://github.com/ghh-jb/CorelliumDecoy)
+
+Support my work: [Venmo](https://venmo.com/user/eolnmsuk)
